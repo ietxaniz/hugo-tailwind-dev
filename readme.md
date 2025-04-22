@@ -117,6 +117,95 @@ docker compose run build
 
 ---
 
+Perfect — thanks for clarifying! You're using the **Hugo + Tailwind v4 integration via hugo_stats.json**, and that changes how the CSS is structured compared to classic setups.
+
+Here's an updated **Tailwind integration section** for the `README.md`, based on your actual working config:
+
+---
+
+## ▶️ TailwindCSS Integration (v4)
+
+This setup uses **Tailwind CSS v4.0** with Hugo’s built-in asset pipeline and `hugo_stats.json` to enable automatic class scanning.
+
+### `assets/css/main.css`
+
+```css
+@import "tailwindcss";
+@source "hugo_stats.json";
+```
+
+---
+
+### `tailwind.config.js`
+
+```js
+export default {
+  content: [
+    "./hugo_stats.json",
+    "./layouts/**/*.html",
+    "./content/**/*.md",
+    "./themes/**/*.{html,js}"
+  ],
+  theme: {
+    extend: {}
+  },
+  plugins: []
+}
+```
+
+---
+
+### Add the following to your `hugo.toml`
+
+```toml
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.parser]
+      [markup.goldmark.parser.attribute]
+        block = true
+
+[build]
+  [build.buildStats]
+    enable = true
+
+  [[build.cachebusters]]
+    source = 'assets/notwatching/hugo_stats\\.json'
+    target = 'css'
+
+  [[build.cachebusters]]
+    source = '(postcss|tailwind)\\.config\\.js'
+    target = 'css'
+
+[module]
+  [[module.mounts]]
+    source = 'assets'
+    target = 'assets'
+
+  [[module.mounts]]
+    disableWatch = true
+    source = 'hugo_stats.json'
+    target = 'assets/notwatching/hugo_stats.json'
+```
+
+---
+
+### In your layout (e.g. `baseof.html`)
+
+Make sure you include the compiled CSS:
+
+```html
+{{ $css := "" }}
+{{ if hugo.IsServer }}
+  {{ $css = resources.Get "css/main.css" | css.TailwindCSS | minify }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}?v={{ now.Unix }}">
+{{ else }}
+  {{ $css = resources.Get "css/main.css" | css.TailwindCSS | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+{{ end }}
+```
+
+---
+
 ## 📃 License
 
 MIT
