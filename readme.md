@@ -158,29 +158,19 @@ export default {
 ### Add the following to your `hugo.toml`
 
 ```toml
-[markup]
-  [markup.goldmark]
-    [markup.goldmark.parser]
-      [markup.goldmark.parser.attribute]
-        block = true
-
 [build]
   [build.buildStats]
     enable = true
-
   [[build.cachebusters]]
-    source = 'assets/notwatching/hugo_stats\\.json'
+    source = 'assets/notwatching/hugo_stats\.json'
     target = 'css'
-
   [[build.cachebusters]]
-    source = '(postcss|tailwind)\\.config\\.js'
+    source = '(postcss|tailwind)\.config\.js'
     target = 'css'
-
 [module]
   [[module.mounts]]
     source = 'assets'
     target = 'assets'
-
   [[module.mounts]]
     disableWatch = true
     source = 'hugo_stats.json'
